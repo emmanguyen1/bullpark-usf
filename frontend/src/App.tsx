@@ -6,6 +6,7 @@ import { SchedulePlanner } from './components/SchedulePlanner';
 import { BullTradeFeed } from './components/BullTradeFeed';
 import { DebuggerDrawer } from './components/DebuggerDrawer';
 import { RealTimeWeatherModal } from './components/RealTimeWeatherModal';
+import { AuthModal } from './components/AuthModal';
 import {
   Building,
   ParkingFacility,
@@ -18,7 +19,8 @@ import {
   BluetoothSignalEvent,
   BullRunnerRoute,
   BullRunnerStop,
-  LiveWeatherCondition
+  LiveWeatherCondition,
+  UserProfile
 } from './types/campus';
 import {
   Calendar,
@@ -29,7 +31,8 @@ import {
   Sliders,
   ThermometerSun,
   Car,
-  Navigation
+  Navigation,
+  User
 } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -61,6 +64,82 @@ export const App: React.FC = () => {
   const [isDebuggerOpen, setIsDebuggerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'routes' | 'schedule' | 'trades'>('routes');
   const [pinnedCarLotId, setPinnedCarLotId] = useState<string | null>(null);
+
+  // User Authentication & Profile Persistence
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
+    try {
+      const saved = localStorage.getItem('bullpark_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  const handleLoginSuccess = (user: UserProfile) => {
+    setCurrentUser(user);
+    try {
+      localStorage.setItem('bullpark_user', JSON.stringify(user));
+    } catch {}
+    if (user.permitType) setSelectedPermit(user.permitType);
+    if (user.schedule && user.schedule.length > 0) {
+      setSchedule(user.schedule);
+      fetch('/api/schedule/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classes: user.schedule })
+      })
+        .then(() => {
+          fetch(`/api/schedule/next-departure?permit=${user.permitType || selectedPermit}`)
+            .then((r) => r.json())
+            .then((d) => {
+              if (d.plan) setDeparturePlan(d.plan);
+            })
+            .catch(() => {});
+        })
+        .catch((err) => console.warn('Could not sync user schedule to backend:', err));
+    }
+    if (user.pinnedCarLotId) setPinnedCarLotId(user.pinnedCarLotId);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('bullpark_user');
+    } catch {}
+  };
+
+  const handlePermitChange = (newPermit: PermitType) => {
+    setSelectedPermit(newPermit);
+    if (currentUser) {
+      const updatedUser = { ...currentUser, permitType: newPermit };
+      setCurrentUser(updatedUser);
+      try {
+        localStorage.setItem('bullpark_user', JSON.stringify(updatedUser));
+      } catch {}
+      fetch(`/api/auth/permit/${currentUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ permitType: newPermit })
+      }).catch((err) => console.warn('Could not save permit to user account:', err));
+    }
+  };
+
+  const handlePinCar = (facId: string | null) => {
+    setPinnedCarLotId(facId);
+    if (currentUser) {
+      const updatedUser = { ...currentUser, pinnedCarLotId: facId };
+      setCurrentUser(updatedUser);
+      try {
+        localStorage.setItem('bullpark_user', JSON.stringify(updatedUser));
+      } catch {}
+      fetch(`/api/auth/pinned-car/${currentUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lotId: facId })
+      }).catch((err) => console.warn('Could not save pinned car to user account:', err));
+    }
+  };
 
   // 1. Initial Data Fetch from Backend APIs
   useEffect(() => {
@@ -166,7 +245,22 @@ export const App: React.FC = () => {
   const handleRefreshSchedule = () => {
     fetch('/api/schedule')
       .then((res) => res.json())
-      .then((data) => setSchedule(data.schedule || []))
+      .then((data) => {
+        const list = data.schedule || [];
+        setSchedule(list);
+        if (currentUser) {
+          const updatedUser = { ...currentUser, schedule: list };
+          setCurrentUser(updatedUser);
+          try {
+            localStorage.setItem('bullpark_user', JSON.stringify(updatedUser));
+          } catch {}
+          fetch(`/api/auth/schedule/${currentUser.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ schedule: list })
+          }).catch((err) => console.warn('Could not save schedule to user account:', err));
+        }
+      })
       .catch((err) => console.error('Error refreshing schedule:', err));
 
     fetch(`/api/schedule/next-departure?permit=${selectedPermit}`)
@@ -229,9 +323,9 @@ export const App: React.FC = () => {
         if (data.event) {
           setRecentTelemetry((prev) => [data.event, ...prev.slice(0, 9)]);
           if (eventType === 'DISCONNECTED') {
-            setPinnedCarLotId(facilityId);
+            handlePinCar(facilityId);
           } else {
-            setPinnedCarLotId(null);
+            handlePinCar(null);
           }
         }
       })
@@ -324,7 +418,7 @@ export const App: React.FC = () => {
               <span className="text-slate-500 text-[11px] font-semibold">Permit:</span>
               <select
                 value={selectedPermit}
-                onChange={(e) => setSelectedPermit(e.target.value as PermitType)}
+                onChange={(e) => handlePermitChange(e.target.value as PermitType)}
                 className="bg-transparent font-black text-[#006747] outline-none cursor-pointer"
               >
                 <option value="S">S - Commuter Student</option>
@@ -365,6 +459,33 @@ export const App: React.FC = () => {
               <Sliders size={14} />
               <span className="hidden md:inline">Simulator</span>
             </button>
+
+            {/* User Profile / Sign In Pill */}
+            {currentUser ? (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-300 rounded-xl px-3 py-1.5 text-xs transition-all shadow-xs group"
+                title="View your saved BullPark profile & schedule"
+              >
+                <div className="w-5 h-5 rounded-full bg-[#006747] text-[#cfc493] font-black text-[10px] flex items-center justify-center">
+                  {currentUser.name.charAt(0)}
+                </div>
+                <span className="font-extrabold text-[#006747] truncate max-w-[110px]">
+                  {currentUser.name.split(' ')[0]}
+                </span>
+                <span className="px-1.5 py-0.2 rounded bg-[#006747] text-white text-[9px] font-black">
+                  {currentUser.permitType}
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="flex items-center gap-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 transition-all shadow-xs"
+              >
+                <User size={14} className="text-[#006747]" />
+                <span>Sign In</span>
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -391,7 +512,7 @@ export const App: React.FC = () => {
                 <Navigation size={12} /> Show Path to My Car
               </button>
               <button
-                onClick={() => setPinnedCarLotId(null)}
+                onClick={() => handlePinCar(null)}
                 className="text-slate-500 hover:text-slate-800 underline text-[11px]"
               >
                 Clear Pin
@@ -460,7 +581,7 @@ export const App: React.FC = () => {
             bullRunnerStops={bullRunnerStops}
             activeTrades={trades}
             pinnedCarLotId={pinnedCarLotId}
-            onPinCar={(facId) => setPinnedCarLotId(facId)}
+            onPinCar={(facId) => handlePinCar(facId)}
             onClaimSpot={handleClaimSpot}
           />
         </div>
@@ -527,7 +648,7 @@ export const App: React.FC = () => {
                   isSelected={activeRouteOption?.facility.id === option.facility.id}
                   isPinned={pinnedCarLotId === option.facility.id}
                   onSelect={() => setActiveRouteOption(option)}
-                  onPinCar={(facId) => setPinnedCarLotId(facId)}
+                  onPinCar={(facId) => handlePinCar(facId)}
                 />
               ))}
             </div>
@@ -564,6 +685,15 @@ export const App: React.FC = () => {
         weather={liveWeather}
         onRefreshLiveWeather={handleRefreshLiveWeather}
         onApplyOverride={handleWeatherChange}
+      />
+
+      {/* User Authentication & Profile Persistence Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        currentUser={currentUser}
+        onLoginSuccess={handleLoginSuccess}
+        onLogout={handleLogout}
       />
 
       {/* USF Intelligence Module Debugger Drawer */}

@@ -8,6 +8,7 @@ import { transitService } from './modules/transit/transit.service';
 import { scheduleService } from './modules/schedule/schedule.service';
 import { exchangeService } from './modules/spot-exchange/exchange.service';
 import { PermitType } from './modules/campus/campus.types';
+import { authRouter } from './modules/auth/auth.router';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -275,6 +276,11 @@ app.post('/api/exchange/simulate-bluetooth', (req: Request, res: Response) => {
 app.get('/api/exchange/telemetry', (_req: Request, res: Response) => {
   res.json({ recentEvents: exchangeService.getRecentTelemetry() });
 });
+
+// ----------------------------------------------------
+// 8. USER AUTH & PERSONALIZATION MODULE ENDPOINTS
+// ----------------------------------------------------
+app.use('/api/auth', authRouter);
 
 // Start Express Server
 app.listen(PORT, () => {

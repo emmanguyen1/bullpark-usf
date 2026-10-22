@@ -1,0 +1,150 @@
+{
+  "user-rocky": {
+    "id": "user-rocky",
+    "email": "rocky@usf.edu",
+    "name": "Rocky the Bull",
+    "studentId": "U12345678",
+    "major": "Finance (Muma College of Business)",
+    "permitType": "S",
+    "commutePreferences": {
+      "targetArrivalBufferMinutes": 12,
+      "walkingPace": "normal",
+      "commuteDriveMinutes": 15,
+      "departureOriginName": "The Ivy Apartments (42nd St)",
+      "prioritizeCoveredIfRain": true
+    },
+    "schedule": [
+      {
+        "id": "bus-1",
+        "courseCode": "FIN 3403",
+        "courseName": "Principles of Finance",
+        "buildingCode": "BSN",
+        "room": "1201",
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "startTime": "11:00",
+        "endTime": "12:15"
+      },
+      {
+        "id": "bus-2",
+        "courseCode": "ACG 2021",
+        "courseName": "Financial Accounting",
+        "buildingCode": "BSN",
+        "room": "1402",
+        "daysOfWeek": [
+          1,
+          3
+        ],
+        "startTime": "14:00",
+        "endTime": "15:15"
+      },
+      {
+        "id": "bus-3",
+        "courseCode": "MAR 3023",
+        "courseName": "Basic Marketing",
+        "buildingCode": "BSN",
+        "room": "2100",
+        "daysOfWeek": [
+          2,
+          4
+        ],
+        "startTime": "12:30",
+        "endTime": "13:45"
+      }
+    ],
+    "pinnedCarLotId": "lot-beard-garage",
+    "pinnedCarTimestamp": "2026-10-22T15:40:13.440Z",
+    "favoriteBuildingCodes": [
+      "BSN",
+      "LIB",
+      "MSC"
+    ],
+    "createdAt": "2026-10-22T15:40:13.440Z",
+    "updatedAt": "2026-10-22T15:40:13.440Z",
+    "passwordHash": "gobulls2026"
+  },
+  "user-stem": {
+    "id": "user-stem",
+    "email": "engineer@usf.edu",
+    "name": "Alex Rivera",
+    "studentId": "U87654321",
+    "major": "Computer Science (College of Engineering)",
+    "permitType": "S",
+    "commutePreferences": {
+      "targetArrivalBufferMinutes": 10,
+      "walkingPace": "brisk",
+      "commuteDriveMinutes": 20,
+      "departureOriginName": "Avalon Heights (Fowler Ave)",
+      "prioritizeCoveredIfRain": true
+    },
+    "schedule": [
+      {
+        "id": "cs-1",
+        "courseCode": "COP 4530",
+        "courseName": "Data Structures & Algorithms",
+        "buildingCode": "ENG",
+        "room": "104",
+        "daysOfWeek": [
+          1,
+          3
+        ],
+        "startTime": "11:00",
+        "endTime": "12:15"
+      },
+      {
+        "id": "cs-2",
+        "courseCode": "CDA 3103",
+        "courseName": "Computer Organization",
+        "buildingCode": "CIS",
+        "room": "202",
+        "daysOfWeek": [
+          1,
+          3
+        ],
+        "startTime": "14:00",
+        "endTime": "15:15"
+      },
+      {
+        "id": "cs-3",
+        "courseCode": "PHY 2049",
+        "courseName": "General Physics II",
+        "buildingCode": "PHY",
+        "room": "118",
+        "daysOfWeek": [
+          2,
+          4
+        ],
+        "startTime": "09:30",
+        "endTime": "10:45"
+      },
+      {
+        "id": "cs-4",
+        "courseCode": "ENC 1102",
+        "courseName": "Composition & Technical Writing",
+        "buildingCode": "CPR",
+        "room": "202",
+        "daysOfWeek": [
+          2,
+          4
+        ],
+        "startTime": "17:45",
+        "endTime": "19:00"
+      }
+    ],
+    "pinnedCarLotId": "lot-collins-garage",
+    "pinnedCarTimestamp": "2026-10-22T15:40:13.440Z",
+    "favoriteBuildingCodes": [
+      "ENG",
+      "ENB",
+      "CIS",
+      "LIB"
+    ],
+    "createdAt": "2026-10-22T15:40:13.440Z",
+    "updatedAt": "2026-10-22T15:40:13.440Z",
+    "passwordHash": "gobulls2026"
+  }
+}

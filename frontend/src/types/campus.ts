@@ -220,3 +220,19 @@ export interface WeatherCondition {
   uvIndex: number;
   summary: string;
 }
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  studentId?: string;
+  major?: string;
+  permitType: PermitType;
+  commutePreferences: UserCommutePreferences;
+  schedule: ClassSession[];
+  pinnedCarLotId: string | null;
+  pinnedCarTimestamp: string | null;
+  favoriteBuildingCodes: string[];
+  createdAt: string;
+  updatedAt: string;
+}
