@@ -4,7 +4,7 @@
 
 ---
 
-## 🏗️ Modular Architecture Overview
+## Modular Architecture Overview
 
 The codebase is split into distinct, decoupled modules to ensure each feature can be understood, tested, and debugged independently:
 
@@ -37,7 +37,7 @@ antigravity-test/
 
 ---
 
-## 🚀 Running the App in VS Code
+## Running the App in VS Code
 
 ### 1. Start Both Backend & Frontend Concurrently:
 ```bash
@@ -57,7 +57,7 @@ npm run dev:frontend
 
 ---
 
-## 🧪 Isolated CLI Module Debugging
+## Isolated CLI Module Debugging
 
 Each module includes its own dedicated standalone debug runner. You can test and inspect any specific feature directly from the terminal without launching the frontend:
 
@@ -72,7 +72,7 @@ Each module includes its own dedicated standalone debug runner. You can test and
 
 ---
 
-## 🎮 Built-in In-App Live Debugger Drawer
+## Built-in In-App Live Debugger Drawer
 
 Click the **"Module Debugger"** button in the top-right corner of the web UI to test real-time scenarios interactively:
 1. **Time Machine**: Fast-forward to **10:48 AM** to observe class turnover spot clearing, or **5:45 PM** to watch faculty lots instantly turn green for student commuters.
