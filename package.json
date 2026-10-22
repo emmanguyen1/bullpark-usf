@@ -1,0 +1,25 @@
+{
+  "name": "bullpark-usf",
+  "version": "1.0.0",
+  "description": "USF Tampa Campus Parking Intelligence & Nearest-to-Class Routing",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,blue\" \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=backend && npm run build --workspace=frontend",
+    "debug:routing": "npm run debug:routing --workspace=backend",
+    "debug:occupancy": "npm run debug:occupancy --workspace=backend",
+    "debug:weather": "npm run debug:weather --workspace=backend",
+    "debug:schedule": "npm run debug:schedule --workspace=backend",
+    "debug:transit": "npm run debug:transit --workspace=backend",
+    "debug:all": "npm run debug:all --workspace=backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

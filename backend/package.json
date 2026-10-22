@@ -1,0 +1,31 @@
+{
+  "name": "bullpark-backend",
+  "version": "1.0.0",
+  "description": "Modular USF Parking Backend API and Intelligence Engine",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "debug:routing": "ts-node src/debug/debug-routing.ts",
+    "debug:occupancy": "ts-node src/debug/debug-occupancy.ts",
+    "debug:weather": "ts-node src/debug/debug-weather.ts",
+    "debug:schedule": "ts-node src/debug/debug-schedule.ts",
+    "debug:transit": "ts-node src/debug/debug-transit.ts",
+    "debug:all": "ts-node src/debug/debug-all.ts"
+  },
+  "dependencies": {
+    "@types/pdf-parse": "^1.1.5",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "pdf-parse": "^2.4.5",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}
