@@ -78,7 +78,6 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
   // Layer toggles
   const [showGarages, setShowGarages] = useState(true);
   const [showSurfaceLots, setShowSurfaceLots] = useState(true);
-  const [showTransit, setShowTransit] = useState(true);
 
   const selectedRoute = props.activeRouteOption || props.recommendedOption;
   const destination: Destination | null =
@@ -148,7 +147,6 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
 
   useEffect(() => {
     setPin(null);
-    setWalking(false);
     setRouteDetails(null);
     if (props.selectedBuilding && map.current) {
       map.current.panTo(point(props.selectedBuilding.coordinates));
@@ -159,65 +157,12 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
     if (watch.current !== null) navigator.geolocation.clearWatch(watch.current);
   }, []);
 
-  // Render Markers (All 26 USF buildings, 9 facilities, transit routes, and active walking line)
+  // Render Markers (USF buildings, parking facilities, and user location)
   useEffect(() => {
     if (!ready || !map.current) return;
     const markers = L.layerGroup().addTo(map.current);
 
-    // 1. Bull Runner Shuttle Routes (Route A, Route B, Route C)
-    if (showTransit) {
-      const shuttleLines: { name: string; color: string; coords: L.LatLngTuple[] }[] = [
-        {
-          name: 'Route A (Core Loop)',
-          color: '#006747',
-          coords: [
-            [28.0555, -82.4030],
-            [28.0580, -82.4080],
-            [28.0610, -82.4088],
-            [28.0645, -82.4135],
-            [28.0630, -82.4160],
-            [28.0592, -82.4128],
-            [28.0555, -82.4030]
-          ]
-        },
-        {
-          name: 'Route B (North-South)',
-          color: '#b59d57',
-          coords: [
-            [28.0673, -82.4188],
-            [28.0645, -82.4135],
-            [28.0592, -82.4128],
-            [28.0570, -82.4100],
-            [28.0592, -82.4128],
-            [28.0645, -82.4135],
-            [28.0673, -82.4188]
-          ]
-        },
-        {
-          name: 'Route C (Engineering Express)',
-          color: '#0d9488',
-          coords: [
-            [28.0605, -82.4178],
-            [28.0597, -82.4169],
-            [28.0645, -82.4135],
-            [28.0605, -82.4178]
-          ]
-        }
-      ];
-
-      shuttleLines.forEach((route) => {
-        const poly = L.polyline(route.coords, {
-          color: route.color,
-          weight: 3.5,
-          dashArray: '6, 6',
-          opacity: 0.8
-        });
-        poly.bindTooltip(route.name);
-        poly.addTo(markers);
-      });
-    }
-
-    // 2. Parking Facilities Markers
+    // 1. Parking Facilities Markers
     for (const facility of props.facilities) {
       const isGarage = facility.type === 'garage';
       if (isGarage && !showGarages) continue;
@@ -345,16 +290,74 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
       }).addTo(markers);
     }
 
-    // User Location
+    // User Current Location (RED PIN)
     if (location) {
-      const youContent = document.createElement('div');
-      youContent.className = 'campus-map-marker';
-      youContent.textContent = 'You';
-      youContent.style.background = '#2563eb';
+      const redPin = document.createElement('div');
+      redPin.className = 'campus-current-location-marker';
+      redPin.style.display = 'flex';
+      redPin.style.flexDirection = 'column';
+      redPin.style.alignItems = 'center';
+      redPin.style.cursor = 'pointer';
+      redPin.innerHTML = `
+        <div style="position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;">
+          <div style="
+            position: absolute;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(220, 38, 38, 0.28);
+            animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+          "></div>
+          <div style="
+            width: 30px;
+            height: 30px;
+            background: #dc2626;
+            border: 2.5px solid #ffffff;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+          ">
+            <div style="
+              width: 9px;
+              height: 9px;
+              background: #ffffff;
+              border-radius: 50%;
+              transform: rotate(45deg);
+            "></div>
+          </div>
+        </div>
+        <div style="
+          background: #dc2626;
+          color: #ffffff;
+          font-size: 10px;
+          font-weight: 900;
+          padding: 2px 7px;
+          border-radius: 9999px;
+          border: 1.5px solid #ffffff;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          margin-top: 2px;
+          white-space: nowrap;
+          z-index: 3;
+          letter-spacing: 0.2px;
+        ">
+          Current Location
+        </div>
+      `;
+
       L.marker(location, {
-        title: `Your location, accuracy about ${Math.round(accuracy)}m`,
-        icon: L.divIcon({ html: youContent, className: 'campus-leaflet-pin', iconSize: [42, 32], iconAnchor: [21, 16] }),
-        zIndexOffset: 1200
+        title: `Your Current Location (Accuracy: ~${Math.round(accuracy || 8)}m)`,
+        icon: L.divIcon({
+          html: redPin,
+          className: 'campus-leaflet-red-pin-wrapper',
+          iconSize: [110, 56],
+          iconAnchor: [55, 34]
+        }),
+        zIndexOffset: 1600
       }).addTo(markers);
     }
 
@@ -391,11 +394,28 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
     accuracy,
     showGarages,
     showSurfaceLots,
-    showTransit,
     activeLayerKey
   ]);
 
-  // Turn-by-Turn Routing Engine (Walking & Driving)
+  // Auto-initiate and update walking route whenever origin (current location or parked lot) and destination change
+  useEffect(() => {
+    const originPoint = location || (selectedRoute ? point(selectedRoute.facility.coordinates) : null);
+    const targetPoint = destination?.position;
+    if (originPoint && targetPoint) {
+      setRequestedOrigin(originPoint);
+      setTravelMode('WALKING');
+      setWalking(true);
+      setRouteAttempt((a) => a + 1);
+    }
+  }, [
+    location?.lat,
+    location?.lng,
+    selectedRoute?.facility.id,
+    destination?.position.lat,
+    destination?.position.lng
+  ]);
+
+  // Turn-by-Turn Routing Engine (Walking & Driving with Fallback)
   useEffect(() => {
     if (!ready || !walking || originLat === undefined || originLng === undefined || targetLat === undefined || targetLng === undefined) return;
     const controller = new AbortController();
@@ -406,16 +426,49 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
     getRoute({ lat: originLat, lng: originLng }, { lat: targetLat, lng: targetLng }, travelMode, controller.signal)
       .then((route) => {
         if (controller.signal.aborted || !map.current) return;
-        line = L.polyline(route.coordinates, { color: '#006747', weight: 6, opacity: 0.9 }).addTo(map.current);
-        map.current.fitBounds(line.getBounds(), { padding: [40, 40] });
+        line = L.polyline(route.coordinates, { color: '#006747', weight: 6, opacity: 0.95 }).addTo(map.current);
+        map.current.fitBounds(line.getBounds(), { padding: [50, 50] });
         setRouteDetails({
-          summary: `${travelMode === 'WALKING' ? 'Walk' : 'Drive'} · ${Math.max(1, Math.round(route.duration / 60))} min · ${(route.distance / 1000).toFixed(1)} km`,
+          summary: `${travelMode === 'WALKING' ? 'Campus Walk' : 'Drive'} · ${Math.max(1, Math.round(route.duration / 60))} min · ${(route.distance / 1000).toFixed(1)} km`,
           steps: route.steps
         });
-        setRouteStatus('Route active. Follow marked pathways.');
+        setRouteStatus('Walking route active. Follow marked campus pathways.');
       })
       .catch(() => {
-        if (!controller.signal.aborted) setRouteStatus('Directions are unavailable right now. Please try again.');
+        if (controller.signal.aborted || !map.current) return;
+        // Campus Sidewalk Direct Path Fallback
+        const dLat = (targetLat - originLat) * 111000;
+        const dLng = (targetLng - originLng) * 111000 * Math.cos((originLat * Math.PI) / 180);
+        const distanceM = Math.round(Math.hypot(dLat, dLng) * 1.25);
+        const walkMins = Math.max(1, Math.ceil(distanceM / 80));
+
+        const midPoint = {
+          lat: (originLat + targetLat) / 2 + (targetLng - originLng) * 0.08,
+          lng: (originLng + targetLng) / 2 - (targetLat - originLat) * 0.08
+        };
+        const fallbackCoords = [
+          { lat: originLat, lng: originLng },
+          midPoint,
+          { lat: targetLat, lng: targetLng }
+        ];
+
+        line = L.polyline(fallbackCoords, {
+          color: '#006747',
+          weight: 5,
+          opacity: 0.95,
+          dashArray: '8, 6'
+        }).addTo(map.current);
+
+        map.current.fitBounds(line.getBounds(), { padding: [50, 50] });
+        setRouteDetails({
+          summary: `Campus Walk · ${walkMins} min · ${distanceM} m`,
+          steps: [
+            `Depart from ${location ? 'Current Location (Red Pin)' : selectedRoute?.facility.name || 'parking spot'}`,
+            `Follow marked USF sidewalks toward ${destination?.name || 'classroom'}`,
+            `Arrive inside ${destination?.name || 'classroom building'}`
+          ]
+        });
+        setRouteStatus('Walking route active along campus walkways.');
       });
 
     return () => {
@@ -532,17 +585,6 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
             >
               Lots
             </button>
-            <button
-              type="button"
-              onClick={() => setShowTransit(!showTransit)}
-              className={`px-2 py-1 rounded-lg transition-all ${
-                showTransit
-                  ? 'bg-emerald-50 text-[#006747] font-black border border-emerald-200'
-                  : 'text-slate-400 font-semibold line-through'
-              }`}
-            >
-              Shuttles
-            </button>
           </div>
 
           <button
@@ -555,11 +597,14 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
 
           <button
             disabled={!ready || locating}
-            className="map-action text-xs"
+            className={`map-action text-xs font-bold transition-all ${
+              location ? 'border-rose-400 bg-rose-50 text-rose-700' : ''
+            }`}
             onClick={locate}
+            title="Show my current location with Red Pin"
           >
-            <LocateFixed size={13} />
-            <span>{locating ? 'Locating…' : 'My location'}</span>
+            <LocateFixed size={13} className={location ? 'text-rose-600 animate-pulse' : ''} />
+            <span>{locating ? 'Locating…' : location ? 'Location (Red Pin)' : 'My location'}</span>
           </button>
         </div>
       </div>
@@ -572,7 +617,7 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
             id="map-building-search"
             value={buildingSearch}
             onChange={(event) => setBuildingSearch(event.target.value)}
-            placeholder="Search campus buildings by code or department (e.g. BSN, ENG, ISA, JPN, LIB)..."
+            placeholder="Search campus buildings by code (e.g. BSN, ENG, ENB, ENC, SCA, HON, CPR, LIB)..."
             className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs font-medium text-slate-900 outline-none focus:border-[#006747] focus:bg-white transition-colors"
           />
         </div>
@@ -586,7 +631,6 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
                   onClick={() => {
                     props.onSelectBuilding(building);
                     setPin(null);
-                    setWalking(false);
                     setBuildingSearch('');
                     map.current?.panTo(point(building.coordinates));
                     map.current?.setZoom(17);
@@ -622,18 +666,20 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
         {locationError && <p role="alert" className="text-xs text-rose-700 font-medium">{locationError}</p>}
 
         {location && (
-          <div className="flex flex-wrap justify-between gap-2 text-xs text-slate-500 font-medium">
-            <span>Location active · Accuracy ~{Math.round(accuracy)}m</span>
+          <div className="flex flex-wrap justify-between items-center gap-2 text-xs text-slate-600 font-medium bg-rose-50 border border-rose-200 p-2 rounded-xl">
+            <span className="flex items-center gap-1.5 text-rose-900 font-bold">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-600 inline-block animate-ping"></span>
+              <span>Red Pin active at Current Location (~{Math.round(accuracy || 8)}m accuracy)</span>
+            </span>
             <button
-              className="text-[#006747] font-bold hover:underline"
+              className="text-rose-700 font-bold hover:underline"
               onClick={() => {
                 if (watch.current !== null) navigator.geolocation.clearWatch(watch.current);
                 watch.current = null;
                 setLocation(null);
-                setWalking(false);
               }}
             >
-              Stop sharing location
+              Clear current location
             </button>
           </div>
         )}
@@ -646,8 +692,18 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
               </span>
               <div>
                 <p className="font-extrabold text-xs text-slate-900">{destination.name}</p>
-                <p className="text-[11px] text-slate-500 font-medium">
-                  Routing from {location ? 'current location' : selectedRoute?.facility.name || 'nearest lot'}
+                <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1 flex-wrap">
+                  <span>Walking route from:</span>
+                  {location ? (
+                    <span className="text-rose-700 font-bold flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-rose-600 inline-block"></span>
+                      Current Location (Red Pin)
+                    </span>
+                  ) : (
+                    <span className="text-[#006747] font-bold">
+                      {selectedRoute?.facility.name || 'nearest lot'}
+                    </span>
+                  )}
                 </p>
               </div>
               {pin && (
@@ -666,12 +722,12 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
 
             <div className="flex flex-wrap gap-2 text-xs font-bold">
               <button
-                className="map-action"
+                className="map-action bg-[#006747] text-white hover:bg-[#004c34]"
                 disabled={!ready || !origin}
                 onClick={showWalk}
               >
                 <Footprints size={14} />
-                <span>Walk here</span>
+                <span>Show Walking Route</span>
               </button>
             </div>
           </div>
@@ -707,7 +763,24 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
 
         {selectedRoute && (
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs pt-1 border-t border-slate-100">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => {
+                  const p = point(selectedRoute.facility.coordinates);
+                  setLocation(p);
+                  setRequestedOrigin(p);
+                  setTravelMode('WALKING');
+                  setWalking(true);
+                  setRouteAttempt((a) => a + 1);
+                  map.current?.panTo(p);
+                }}
+                className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-xs transition-all"
+                title="Mark parking spot as current location with Red Pin and show walking route to classroom"
+              >
+                <MapPin size={13} className="text-white" />
+                <span>📍 I've Parked Here (Drop Red Pin & Walk)</span>
+              </button>
+
               <button
                 disabled={!ready || !location}
                 onClick={() => {
@@ -721,11 +794,6 @@ export function CampusMap(props: ComponentProps<typeof USFMap>) {
                 <Navigation size={13} />
                 <span>Drive to parking</span>
               </button>
-              {!location && (
-                <span className="text-[11px] text-slate-400 font-medium">
-                  (Turn on My location for turn-by-turn driving)
-                </span>
-              )}
             </div>
 
             <button

@@ -2,16 +2,15 @@ import { USF_BUILDINGS, USF_PARKING_FACILITIES } from './campus.data';
 import { Building, ParkingFacility, PermitType } from './campus.types';
 
 export const USF_BUILDING_ALIASES: Record<string, string> = {
-  ENB: 'ENG',
-  ENC: 'ENG',
+  JPN: 'HON',
+  CMC: 'CIS',
   ENA: 'ENG',
   KMI: 'ENG',
-  NES: 'ENG',
-  CMC: 'CIS',
-  SCA: 'CHE',
-  SCN: 'CHE',
   BSN2: 'BSN',
-  EDU: 'CPR'
+  EDC: 'EDU',
+  SCN: 'SCA',
+  TAT: 'TAR',
+  THE: 'TAR'
 };
 
 export class CampusService {

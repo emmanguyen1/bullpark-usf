@@ -458,15 +458,15 @@ export class ScheduleService {
       const buildingSearchList: Array<{ searchCode: string; canonicalCode: string }> = [];
       allBuildings.forEach((b) => buildingSearchList.push({ searchCode: b.code, canonicalCode: b.code }));
       buildingSearchList.push(
-        { searchCode: 'ENB', canonicalCode: 'ENG' },
-        { searchCode: 'ENC', canonicalCode: 'ENG' },
+        { searchCode: 'JPN', canonicalCode: 'HON' },
         { searchCode: 'ENA', canonicalCode: 'ENG' },
         { searchCode: 'KMI', canonicalCode: 'ENG' },
         { searchCode: 'CMC', canonicalCode: 'CIS' },
-        { searchCode: 'SCA', canonicalCode: 'CHE' },
-        { searchCode: 'SCN', canonicalCode: 'CHE' },
+        { searchCode: 'SCN', canonicalCode: 'SCA' },
         { searchCode: 'BSN2', canonicalCode: 'BSN' },
-        { searchCode: 'EDU', canonicalCode: 'CPR' }
+        { searchCode: 'EDC', canonicalCode: 'EDU' },
+        { searchCode: 'TAT', canonicalCode: 'TAR' },
+        { searchCode: 'THE', canonicalCode: 'TAR' }
       );
 
       let buildingCode = 'BSN';

@@ -94,3 +94,9 @@ code, pre {
 }
 .map-action:hover { background: #f0fdf4; }
 .map-action:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Custom Leaflet Pin Styling */
+.campus-leaflet-red-pin-wrapper {
+  background: transparent !important;
+  border: none !important;
+}

@@ -49,11 +49,38 @@ export const USF_BUILDINGS: Building[] = [
   {
     id: 'bldg-eng',
     code: 'ENG',
-    name: 'Hall of Engineering (ENG / ENB)',
+    name: 'Hall of Engineering (Engineering I)',
     category: 'academic',
     coordinates: { latitude: 28.0597, longitude: -82.4169 },
-    description: 'College of Engineering complex including computer science labs.',
-    popularDepartments: ['Computer Science', 'Mechanical Engineering', 'Electrical Engineering']
+    description: 'College of Engineering complex including civil and environmental engineering.',
+    popularDepartments: ['Civil Engineering', 'Mechanical Engineering', 'Electrical Engineering']
+  },
+  {
+    id: 'bldg-enb',
+    code: 'ENB',
+    name: 'Engineering Building II',
+    category: 'academic',
+    coordinates: { latitude: 28.0587, longitude: -82.4163 },
+    description: 'Computer Science & Engineering lecture halls and research laboratories.',
+    popularDepartments: ['Computer Science', 'Computer Engineering', 'Cybersecurity']
+  },
+  {
+    id: 'bldg-enc',
+    code: 'ENC',
+    name: 'Engineering Building III (Kopp)',
+    category: 'academic',
+    coordinates: { latitude: 28.0601, longitude: -82.4158 },
+    description: 'Chemical & biomedical engineering, advanced maker spaces, and student design labs.',
+    popularDepartments: ['Chemical Engineering', 'Biomedical Engineering', 'Industrial Engineering']
+  },
+  {
+    id: 'bldg-sca',
+    code: 'SCA',
+    name: 'Science Center',
+    category: 'academic',
+    coordinates: { latitude: 28.0612, longitude: -82.4121 },
+    description: 'Central campus STEM lecture halls, large auditorium (SCA 110), and sciences advising.',
+    popularDepartments: ['Chemistry', 'Biology', 'Natural Sciences']
   },
   {
     id: 'bldg-cis',
@@ -101,8 +128,8 @@ export const USF_BUILDINGS: Building[] = [
     popularDepartments: ['Athletics', 'Special Events']
   },
   {
-    id: 'bldg-jpn',
-    code: 'JPN',
+    id: 'bldg-hon',
+    code: 'HON',
     name: 'Judy Genshaft Honors College',
     category: 'academic',
     coordinates: { latitude: 28.0629, longitude: -82.4129 },
@@ -234,6 +261,33 @@ export const USF_BUILDINGS: Building[] = [
     coordinates: { latitude: 28.0655, longitude: -82.4102 },
     description: 'All-you-care-to-eat residential dining hall and student social lounges.',
     popularDepartments: ['Dining Services', 'Residential Life']
+  },
+  {
+    id: 'bldg-cwy',
+    code: 'CWY',
+    name: 'C.W. Bill Young Hall (ROTC)',
+    category: 'academic',
+    coordinates: { latitude: 28.0618, longitude: -82.4085 },
+    description: 'Joint Military Leadership Center and academic classrooms.',
+    popularDepartments: ['ROTC', 'Military Science', 'Leadership Studies']
+  },
+  {
+    id: 'bldg-tar',
+    code: 'TAR',
+    name: 'Theatre Arts Building',
+    category: 'academic',
+    coordinates: { latitude: 28.0604, longitude: -82.4148 },
+    description: 'Mainstage theatre, rehearsal halls, and performance studios.',
+    popularDepartments: ['Theatre Performance', 'Design & Technology', 'Dance']
+  },
+  {
+    id: 'bldg-mdn',
+    code: 'MDN',
+    name: 'Morsani Health Center',
+    category: 'academic',
+    coordinates: { latitude: 28.0650, longitude: -82.4230 },
+    description: 'Advanced ambulatory healthcare center and clinical medical education.',
+    popularDepartments: ['Clinical Medicine', 'Physical Therapy', 'Health Informatics']
   }
 ];
 

@@ -15,7 +15,6 @@ import {
   Radio,
   Warehouse,
   Zap,
-  Bus,
   ShieldCheck,
   ShieldAlert,
   Layers
@@ -47,7 +46,6 @@ export const USFMap: React.FC<USFMapProps> = ({
   onSelectBuilding,
   onSelectFacility,
   rankedOptions,
-  bullRunnerStops = [],
   activeTrades = [],
   pinnedCarLotId,
   onPinCar,
@@ -56,7 +54,6 @@ export const USFMap: React.FC<USFMapProps> = ({
   // Layer visibility controls
   const [showGarages, setShowGarages] = useState(true);
   const [showSurfaceLots, setShowSurfaceLots] = useState(true);
-  const [showShuttleRoutes, setShowShuttleRoutes] = useState(true);
   const [showBullTrades, setShowBullTrades] = useState(true);
   const [activeZone, setActiveZone] = useState<'all' | 'core' | 'north' | 'south'>('all');
 
@@ -183,34 +180,6 @@ export const USFMap: React.FC<USFMapProps> = ({
     );
   }
 
-  // Bull Runner shuttle routes (geometric campus loops)
-  const shuttleLoopCoords: Record<string, { latitude: number; longitude: number }[]> = {
-    'route-a': [
-      { latitude: 28.0555, longitude: -82.4030 }, // Yuengling Stop
-      { latitude: 28.0580, longitude: -82.4080 },
-      { latitude: 28.0610, longitude: -82.4088 }, // Crescent Hill Stop
-      { latitude: 28.0645, longitude: -82.4135 }, // MSC Transit Plaza
-      { latitude: 28.0630, longitude: -82.4160 },
-      { latitude: 28.0592, longitude: -82.4128 }, // Library Stop
-      { latitude: 28.0555, longitude: -82.4030 }
-    ],
-    'route-b': [
-      { latitude: 28.0673, longitude: -82.4188 }, // Sycamore North
-      { latitude: 28.0645, longitude: -82.4135 }, // MSC Transit Plaza
-      { latitude: 28.0592, longitude: -82.4128 }, // Library Stop
-      { latitude: 28.0570, longitude: -82.4100 },
-      { latitude: 28.0592, longitude: -82.4128 },
-      { latitude: 28.0645, longitude: -82.4135 },
-      { latitude: 28.0673, longitude: -82.4188 }
-    ],
-    'route-c': [
-      { latitude: 28.0605, longitude: -82.4178 }, // Beard Garage Stop
-      { latitude: 28.0597, longitude: -82.4169 },
-      { latitude: 28.0645, longitude: -82.4135 }, // MSC
-      { latitude: 28.0605, longitude: -82.4178 }
-    ]
-  };
-
   return (
     <div className="relative w-full rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm flex flex-col">
       {/* Top Map Action Bar */}
@@ -284,19 +253,6 @@ export const USFMap: React.FC<USFMapProps> = ({
           >
             <span>P</span>
             <span>Lots</span>
-          </button>
-
-          <button
-            onClick={() => setShowShuttleRoutes(!showShuttleRoutes)}
-            className={`px-2.5 py-1 rounded-xl border flex items-center gap-1 font-bold transition-all ${
-              showShuttleRoutes
-                ? 'bg-emerald-50 border-[#006747] text-[#006747]'
-                : 'bg-slate-50 border-slate-200 text-slate-500'
-            }`}
-            title="Toggle Bull Runner Shuttle Routes"
-          >
-            <Bus size={12} />
-            <span className="hidden md:inline">Shuttle</span>
           </button>
 
           <button
@@ -401,84 +357,7 @@ export const USFMap: React.FC<USFMapProps> = ({
             <text x="190" y="90" fill="#475569" fontSize="9" fontWeight="bold">SYCAMORE DR</text>
           </g>
 
-          {/* 3. BULL RUNNER SHUTTLE TRANSIT ROUTES & STOPS */}
-          {showShuttleRoutes && (
-            <g className="bull-runner-transit-layer">
-              {/* Route A: USF Green */}
-              <polyline
-                points={shuttleLoopCoords['route-a']
-                  .map((p) => {
-                    const pt = projectToSvg(p.latitude, p.longitude);
-                    return `${pt.x},${pt.y}`;
-                  })
-                  .join(' ')}
-                fill="none"
-                stroke="#006747"
-                strokeWidth="3.5"
-                strokeDasharray="6,8"
-                opacity="0.85"
-              />
-
-              {/* Route B: USF Gold */}
-              <polyline
-                points={shuttleLoopCoords['route-b']
-                  .map((p) => {
-                    const pt = projectToSvg(p.latitude, p.longitude);
-                    return `${pt.x},${pt.y}`;
-                  })
-                  .join(' ')}
-                fill="none"
-                stroke="#b59d57"
-                strokeWidth="3.5"
-                strokeDasharray="5,7"
-                opacity="0.9"
-              />
-
-              {/* Route C: Teal */}
-              <polyline
-                points={shuttleLoopCoords['route-c']
-                  .map((p) => {
-                    const pt = projectToSvg(p.latitude, p.longitude);
-                    return `${pt.x},${pt.y}`;
-                  })
-                  .join(' ')}
-                fill="none"
-                stroke="#0d9488"
-                strokeWidth="3"
-                strokeDasharray="4,6"
-                opacity="0.85"
-              />
-
-              {/* Shuttle Stop Nodes */}
-              {bullRunnerStops.map((stop) => {
-                const pt = projectToSvg(stop.coordinates.latitude, stop.coordinates.longitude);
-                return (
-                  <g
-                    key={stop.id}
-                    transform={`translate(${pt.x}, ${pt.y})`}
-                    className="cursor-pointer group"
-                    onClick={() => setInspectedEntity({ type: 'stop', data: stop })}
-                  >
-                    <circle r="10" fill="#ffffff" stroke="#006747" strokeWidth="2.5" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.15))" />
-                    <circle r="4" fill="#006747" />
-                    <text
-                      x="0"
-                      y="-14"
-                      fill="#0f172a"
-                      fontSize="9"
-                      fontWeight="bold"
-                      textAnchor="middle"
-                      className="opacity-80 group-hover:opacity-100 transition-all"
-                    >
-                      {stop.name.split('(')[0]}
-                    </text>
-                  </g>
-                );
-              })}
-            </g>
-          )}
-
-          {/* 4. DYNAMIC WALKING VECTOR PATH */}
+          {/* 3. DYNAMIC WALKING VECTOR PATH */}
           {walkingPathElement}
 
           {/* 5. PARKING FACILITIES (Garages & Surface Lots) */}
@@ -812,19 +691,16 @@ export const USFMap: React.FC<USFMapProps> = ({
                 <span className="p-2 rounded-xl bg-emerald-50 text-[#006747] border border-emerald-200 shadow-sm">
                   {inspectedEntity.type === 'facility' && <Warehouse size={16} />}
                   {inspectedEntity.type === 'building' && <MapPin size={16} />}
-                  {inspectedEntity.type === 'stop' && <Bus size={16} />}
                 </span>
                 <div>
                   <h4 className="font-extrabold text-sm text-slate-900">
                     {inspectedEntity.type === 'facility' && inspectedEntity.data.facility.name}
                     {inspectedEntity.type === 'building' && inspectedEntity.data.name}
-                    {inspectedEntity.type === 'stop' && inspectedEntity.data.name}
                   </h4>
                   <span className="text-[11px] font-semibold text-[#006747]">
                     {inspectedEntity.type === 'facility' &&
                       `${inspectedEntity.data.facility.type === 'garage' ? `${inspectedEntity.data.facility.levels} Levels Garage` : 'Surface Lot'}`}
                     {inspectedEntity.type === 'building' && `[${inspectedEntity.data.code}] ${inspectedEntity.data.category.toUpperCase()}`}
-                    {inspectedEntity.type === 'stop' && `Serviced by: ${inspectedEntity.data.servicedRoutes.join(', ')}`}
                   </span>
                 </div>
               </div>
@@ -982,9 +858,6 @@ export const USFMap: React.FC<USFMapProps> = ({
           </span>
           <span className="flex items-center gap-1 text-emerald-600">
             <Zap size={13} /> EV Station
-          </span>
-          <span className="flex items-center gap-1 text-sky-600">
-            <Bus size={13} /> Shuttle Stop
           </span>
         </div>
       </div>
