@@ -1,4 +1,4 @@
-# 🤘 BullPark USF — Nearest-to-Class Parking Navigator
+# BullPark USF — Parking Navigator
 
 **BullPark USF** is a modular parking intelligence and nearest-to-class navigation system designed specifically for the University of South Florida (USF) Tampa campus. It guides commuter and resident students to the optimal legal parking spot closest to their academic lecture building, minimizing walking distance, beating the Florida heat/rain, and preventing tardiness.
 
